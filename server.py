@@ -1,9 +1,9 @@
 import time, sys, cherrypy, os
 # Path for spark source folder
-os.environ['SPARK_HOME']="E:\spark-2.0.1-bin-hadoop2.7"
+os.environ['SPARK_HOME']="/spark-2.0.1-bin-hadoop2.7"
 
 # Append pyspark  to Python Path
-sys.path.append("E:\spark-2.0.1-bin-hadoop2.7\bin")
+sys.path.append("/spark-2.0.1-bin-hadoop2.7/bin")
 
 try:
     from pyspark import SparkContext
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     sc = init_spark_context()
     #print(os.path)
     #dataset_path = os.path.join('datasets', 'ml-latest')
-    dataset_path = "file:///E:\spark-movie-lens\Datasets\ml-latest-small"
+    dataset_path = "file:////home/aashishkatlam/spark-movie-lens/Datasets/ml-latest-small"
     app = create_app(sc, dataset_path)
  
     # start web server
