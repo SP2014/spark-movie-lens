@@ -1,5 +1,18 @@
-import os
-from pyspark.mllib.recommendation import ALS
+import os,sys
+os.environ['SPARK_HOME']="E:\spark-2.0.1-bin-hadoop2.7"
+
+# Append pyspark  to Python Path
+sys.path.append("E:\spark-2.0.1-bin-hadoop2.7\bin")
+
+try:
+    from pyspark.mllib.recommendation import ALS
+
+    print ("Successfully imported Spark Modules")
+
+except ImportError as e:
+    print ("Can not import Spark Modules", e)
+    sys.exit(1)
+
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -43,10 +56,8 @@ class RecommendationEngine:
         """
         predicted_RDD = self.model.predictAll(user_and_movie_RDD)
         predicted_rating_RDD = predicted_RDD.map(lambda x: (x.product, x.rating))
-        predicted_rating_title_and_count_RDD = \
-            predicted_rating_RDD.join(self.movies_titles_RDD).join(self.movies_rating_counts_RDD)
-        predicted_rating_title_and_count_RDD = \
-            predicted_rating_title_and_count_RDD.map(lambda r: (r[1][0][1], r[1][0][0], r[1][1]))
+        predicted_rating_title_and_count_RDD = predicted_rating_RDD.join(self.movies_titles_RDD).join(self.movies_rating_counts_RDD)
+        predicted_rating_title_and_count_RDD = predicted_rating_title_and_count_RDD.map(lambda r: (r[1][0][1], r[1][0][0], r[1][1]))
         
         return predicted_rating_title_and_count_RDD
     
@@ -74,12 +85,9 @@ class RecommendationEngine:
         return ratings
     
     def get_top_ratings(self, user_id, movies_count):
-        """Recommends up to movies_count top unrated movies to user_id
-        """
-        # Get pairs of (userID, movieID) for user_id unrated movies
-        user_unrated_movies_rdd = self.ratings_RDD.filter(lambda rating: not rating[0] == user_id)\
-                                                 .map(lambda x: (user_id, x[1])).distinct()
-        # Get predicted ratings
+
+        user_unrated_movies_RDD = self.ratings_RDD.filter(lambda rating: not rating[0] == user_id).map(lambda x: (user_id, x[1])).distinct()
+
         ratings = self.__predict_ratings(user_unrated_movies_RDD).filter(lambda r: r[2]>=25).takeOrdered(movies_count, key=lambda x: -x[1])
 
         return ratings

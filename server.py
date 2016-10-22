@@ -1,7 +1,24 @@
 import time, sys, cherrypy, os
+# Path for spark source folder
+os.environ['SPARK_HOME']="E:\spark-2.0.1-bin-hadoop2.7"
+
+# Append pyspark  to Python Path
+sys.path.append("E:\spark-2.0.1-bin-hadoop2.7\bin")
+
+try:
+    from pyspark import SparkContext
+    from pyspark import SparkConf
+
+    print ("Successfully imported Spark Modules")
+
+except ImportError as e:
+    print ("Can not import Spark Modules", e)
+    sys.exit(1)
+
+
 from paste.translogger import TransLogger
 from app import create_app
-from pyspark import SparkContext, SparkConf
+
 
 def init_spark_context():
     # load spark context
@@ -36,7 +53,9 @@ def run_server(app):
 if __name__ == "__main__":
     # Init spark context and load libraries
     sc = init_spark_context()
-    dataset_path = os.path.join('datasets', 'ml-latest')
+    #print(os.path)
+    #dataset_path = os.path.join('datasets', 'ml-latest')
+    dataset_path = "file:///E:\spark-movie-lens\Datasets\ml-latest-small"
     app = create_app(sc, dataset_path)
  
     # start web server
